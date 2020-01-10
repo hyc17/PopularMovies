@@ -21,13 +21,26 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.NumberViewHo
     private Class destinationActivity = DetailActivity.class;
 
 
-
     public MovieAdapter(Context context, String queryResult) {
         mContext = context;
+        refreshMovies(queryResult);
+    }
+
+//    public MovieAdapter(Context context, List<Movie> movies){
+//        mContext = context;
+//        this.movies = movies;
+//        numMovies = movies.size();
+//    }
+
+    public void refreshMovies(List<Movie> movies){
+        this.movies = movies;
+        numMovies = movies.size();
+    }
+
+    public void refreshMovies(String queryResult){
         movies = JsonUtils.parseMoviesJson(queryResult);
         numMovies = (movies != null) ? movies.size() : 0;
     }
-
 
     @Override
     public NumberViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -45,19 +58,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.NumberViewHo
     public void onBindViewHolder(NumberViewHolder holder, final int position) {
 
         final Movie movie = movies.get(position);
-
         CommonUtils.loadImageByPicasso(holder.imageView, movie.getPosterPath());
-
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent startDetailActivityIntent = new Intent(mContext, destinationActivity);
+                startDetailActivityIntent.putExtra(mContext.getResources().getString(R.string.id), movie.getId());
                 startDetailActivityIntent.putExtra(mContext.getResources().getString(R.string.overview), movie.getOverview());
                 startDetailActivityIntent.putExtra(mContext.getResources().getString(R.string.title), movie.getTitle());
                 startDetailActivityIntent.putExtra(mContext.getResources().getString(R.string.release_date), movie.getReleaseDate());
                 startDetailActivityIntent.putExtra(mContext.getResources().getString(R.string.vote_average), movie.getVoteAverage());
                 startDetailActivityIntent.putExtra(mContext.getResources().getString(R.string.poster_path), movie.getPosterPath());
+
                 mContext.startActivity(startDetailActivityIntent);
 
             }

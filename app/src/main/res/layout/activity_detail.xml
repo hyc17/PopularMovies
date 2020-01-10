@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<ScrollView
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <ImageView
             android:id="@+id/poster_image"
             android:layout_width="match_parent"
@@ -41,6 +44,53 @@
             android:textStyle="bold"
             android:textSize="20sp"/>
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/video_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/overview"
+            />
+
+        <TextView
+            android:id="@+id/video_error_message_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="348dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:padding="16dp"
+            android:text="@string/video_error_message"
+            android:textSize="22sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/overview" />
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/review_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/video_recyclerview"
+            />
+
+        <TextView
+            android:id="@+id/review_error_message_display"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="348dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:padding="16dp"
+            android:text="@string/review_error_message"
+            android:textSize="22sp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/video_recyclerview" />
+
+
 
     </LinearLayout>
 </ScrollView>
+</layout>
