@@ -31,8 +31,6 @@ import java.net.URL;
 public class DetailActivity extends AppCompatActivity {
 
     ActivityDetailBinding mBinding;
-//    private String reviewQueryResult;
-//    private String videoQueryResult;
     private ReviewAdapter reviewAdapter;
     private VideoAdapter videoAdapter;
     private RecyclerView.LayoutManager reviewLayoutManager;
@@ -148,16 +146,10 @@ public class DetailActivity extends AppCompatActivity {
                 showJsonDataView(option);
 
                 if(VIDEOS.equals(option)){
-//                    videoQueryResult = searchResults;
-//                    videoAdapter = new VideoAdapter(ctx, searchResults);
-//                    mBinding.videoRecyclerview.setAdapter(videoAdapter);
                     videoAdapter.refreshVideos(searchResults);
                     videoAdapter.notifyDataSetChanged();
                 }
                 else if(REVIEWS.equals(option)){
-//                    reviewQueryResult = searchResults;
-//                    reviewAdapter = new ReviewAdapter(searchResults);
-//                    mBinding.reviewRecyclerview.setAdapter(reviewAdapter);
                     reviewAdapter.refreshReviews(searchResults);
                     reviewAdapter.notifyDataSetChanged();
                 }
