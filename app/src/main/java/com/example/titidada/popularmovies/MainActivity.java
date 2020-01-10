@@ -1,8 +1,10 @@
 package com.example.titidada.popularmovies;
 
-import android.content.Context;
-import android.content.res.Resources;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
+import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,68 +12,77 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.TextView;
 
+import com.example.titidada.popularmovies.databinding.ActivityMainBinding;
+import com.example.titidada.popularmovies.model.Movie;
 import com.example.titidada.popularmovies.utilities.NetworkUtils;
+import com.example.titidada.popularmovies.viewmodels.FavoriteMoviesViewModel;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    private TextView mErrorMessageDisplay;
-
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
+    ActivityMainBinding mBinding;
+    private MovieAdapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private int numColsInGrid = 2;
 
     private String sortBy = "popular";
-    private String searchResult;
+
+    private static final String FAVORITES = "favorites";
+    private boolean isShowingFavorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        mErrorMessageDisplay = findViewById(R.id.error_message_display);
-        Spinner sortBySpinner = findViewById(R.id.sort_by_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sort_by_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sortBySpinner.setAdapter(adapter);
-        sortBySpinner.setOnItemSelectedListener(this);
-
-        recyclerView = findViewById(R.id.movie_recyclerview);
-        recyclerView.setHasFixedSize(true);
+        mBinding.sortBySpinner.setAdapter(adapter);
+        mBinding.sortBySpinner.setOnItemSelectedListener(this);
+        mBinding.movieRecyclerview.setHasFixedSize(true);
         layoutManager = new GridLayoutManager(this, numColsInGrid);
-        recyclerView.setLayoutManager(layoutManager);
+        mBinding.movieRecyclerview.setLayoutManager(layoutManager);
+        mAdapter = new MovieAdapter(this, "");
+        mBinding.movieRecyclerview.setAdapter(mAdapter);
 
         makeQuery(sortBy);
-        mAdapter = new MovieAdapter(this, searchResult);
-        recyclerView.setAdapter(mAdapter);
-
     }
 
     private void makeQuery(String sortBy) {
-        URL movieDbQueryUrl = NetworkUtils.buildUrl(sortBy);
-        new MovieDbQueryTask(this).execute(movieDbQueryUrl);
+        if(FAVORITES.equals(sortBy)){
+            showJsonDataView();
+            setupMoviesFromViewModel();
+        }
+        else {
+            URL movieDbQueryUrl = NetworkUtils.buildUrl(sortBy);
+            new MovieDbQueryTask().execute(movieDbQueryUrl);
+        }
     }
 
     private void showJsonDataView() {
-        mErrorMessageDisplay.setVisibility(View.INVISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
+        mBinding.errorMessageDisplay.setVisibility(View.INVISIBLE);
+        mBinding.movieRecyclerview.setVisibility(View.VISIBLE);
     }
 
     private void showErrorMessage() {
-        recyclerView.setVisibility(View.INVISIBLE);
-        mErrorMessageDisplay.setVisibility(View.VISIBLE);
+        mBinding.movieRecyclerview.setVisibility(View.INVISIBLE);
+        mBinding.errorMessageDisplay.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         sortBy = (String) parent.getItemAtPosition(position);
+        if(FAVORITES.equals(sortBy)){
+            isShowingFavorites = true;
+        }
+        else{
+            isShowingFavorites = false;
+        }
         makeQuery(sortBy);
     }
 
@@ -82,11 +93,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public class MovieDbQueryTask extends AsyncTask<URL, Void, String> {
 
-        public MovieDbQueryTask(Context ctx) {
-            this.ctx = ctx;
-        }
-
-        private Context ctx;
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -109,15 +115,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             if (movieSearchResults != null && !movieSearchResults.equals("")) {
                 showJsonDataView();
-                searchResult = movieSearchResults;
-                mAdapter = new MovieAdapter(ctx, searchResult);
-                recyclerView.setAdapter(mAdapter);
+                mAdapter.refreshMovies(movieSearchResults);
+                mAdapter.notifyDataSetChanged();
+
 
             } else {
                 showErrorMessage();
             }
         }
     }
+
+    private void setupMoviesFromViewModel() {
+        FavoriteMoviesViewModel viewModel = ViewModelProviders.of(this).get(FavoriteMoviesViewModel.class);
+        viewModel.getMovies().observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                if(isShowingFavorites){
+                    mAdapter.refreshMovies(movies);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
+        });
+
+    }
+
 
 
 }
