@@ -14,7 +14,7 @@ public class NetworkUtils {
 
     final static String MOVIE_DB_BASE_URL = "https://api.themoviedb.org/3/movie/";
     final static String API_KEY = "api_key";
-    final static String API_KEY_CONTENT = "85a6391ee282279438e353315729d5bf";
+    final static String API_KEY_CONTENT = "";
 
     final static String YOUTUBE_URL = "https://www.youtube.com/watch";
     final static String V = "v";
